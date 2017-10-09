@@ -39,7 +39,7 @@ static void bi_echo(char **argv) {
 
 static void bi_quit(char **argv) {
   	/* Fill in code. */
-
+		exit(0);
 }
 /* Fill in code. */
 
