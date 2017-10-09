@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 #include "shell.h"
 
 
@@ -19,7 +20,23 @@
 
 /* "echo" command.  Does not print final <CR> if "-n" encountered. */
 static void bi_echo(char **argv) {
+		// printf("Enter Echo\n");
+  	// /* Fill in code. */
+		// // -n not exist -> print all
+		// if (strcmp(argv[1], "-n") != 0){
+		// 	for(int i = 0; argv[i]; ++i){
+		// 		printf("%s ", argv[i]);
+		// 	}
+		// 	printf("\n");
+		// } else {
+		// 	printf("detect -n\n");
+		// }
+
+}
+
+static void bi_quit(char **argv) {
   	/* Fill in code. */
+
 }
 /* Fill in code. */
 
@@ -37,7 +54,11 @@ static struct cmd {
 
 	/* Fill in code. */
 
-	{ "echo", bi_echo },		/* When "echo" is typed, bi_echo() executes.  */
+	{"echo", bi_echo },
+	{"quit", bi_quit},
+	{"exit", bi_quit},
+	{"logout", bi_quit},
+	{"bye", bi_quit},		/* When "echo" is typed, bi_echo() executes.  */
 	{ NULL, NULL }				/* NULL terminated. */
 };
 
@@ -58,6 +79,7 @@ int is_builtin(char *cmd) {
   	for (tableCommand = inbuilts ; tableCommand->keyword != NULL; tableCommand++)
     	if (strcmp(tableCommand->keyword,cmd) == 0) {
 			this = tableCommand;
+			// printf("isBuild\n");
 			return 1;
 		}
   	return 0;
@@ -67,4 +89,5 @@ int is_builtin(char *cmd) {
 /* Execute the function corresponding to the builtin cmd found by is_builtin. */
 int do_builtin(char **argv) {
   	this->do_it(argv);
+		// printf("do\n");
 }

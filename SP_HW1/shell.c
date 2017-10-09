@@ -17,18 +17,15 @@ int main() {
 
         /* Create argv array based on commandline. */
         if (myArgv = parse(line)) {
-
-           
             if (is_builtin(myArgv[0])) { /* If command is recognized as a builtin, do it. */
-                do_builtin(myArgv);         
+                do_builtin(myArgv);
             } else {					/* Non-builtin command. */
-	            run_command(myArgv);
+              run_command(myArgv);
             }
-
-            free_argv(myArgv);			/* Free argv array. */
+            free_argv(myArgv);		/* Free argv array. */
         }
 
         fputs("myshell -> ", stdout);
     }
-    exit(0);
+    return 0;
 }
