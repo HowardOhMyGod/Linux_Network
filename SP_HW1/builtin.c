@@ -29,7 +29,10 @@ static void bi_echo(char **argv) {
 			}
 			printf("\n");
 		} else {
-			printf("detect -n\n");
+			// printf("detect -n\n");
+			int num = atoi(argv[2]);
+			printf("%s\n", argv[2 + num]);
+
 		}
 
 }
