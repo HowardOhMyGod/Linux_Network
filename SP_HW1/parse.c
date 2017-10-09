@@ -1,4 +1,4 @@
-/*
+  /*
  * parse.c : use whitespace to tokenise a line
  * Initialise a vector big enough
  */
@@ -35,15 +35,14 @@ char ** parse(char *line) {
   	 *
 	 * Fill in code.
 	 */
-   char *temp = NULL;
 
-   newArgv = (char **) malloc(sizeof(char *));
-   temp = malloc((strlen(token) + 1)*sizeof(char));
-   strcpy(temp, token);
-  //  printf("Token store in %p, value = %s\n", token, token);
-   newArgv[count] = temp;
+   newArgv = malloc(2*sizeof(char *));
+   newArgv[count] = malloc((strlen(token) + 1)*sizeof(char));
   //  printf("Token store in %p, value = %s\n", newArgv[count], newArgv[count]);
-   temp = NULL;
+   strcpy(newArgv[count], token);
+  //  printf("Token store in %p, value = %s\n", token, token);
+  //  newArgv[count] = temp;
+  //  printf("Token store in %p, value = %s\n", newArgv[count], newArgv[count]);
 
    printf("[%d] : %s \n",count, newArgv[count]);
    count++;
@@ -58,15 +57,15 @@ char ** parse(char *line) {
   	 * Fill in code.
 	 */
    while(token != NULL){
-     newArgv = (char **) realloc(newArgv, (count + 1) * sizeof(char *));
-     temp = malloc((strlen(token) + 1)*sizeof(char));
+     newArgv = realloc(newArgv, (count + 2) * sizeof(char *));
+     newArgv[count] = malloc((strlen(token) + 1)*sizeof(char));
+    //  printf("Token store in %p, value = %s\n", newArgv[count], newArgv[count]);
     //  printf("Token len = %zu\n", (strlen(token) + 1)*sizeof(char));
-     strcpy(temp, token);
+     strcpy(newArgv[count] , token);
     //  printf("Token store in %p, value = %s\n", token, token);
 
-     newArgv[count] = temp;
+    //  newArgv[count] = temp;
     //  printf("Token store in %p, value = %s\n", newArgv[count], newArgv[count]);
-     temp = NULL;
      printf("[%d] : %s \n",count, newArgv[count]);
      token = strtok(NULL, delim);
      count++;
@@ -76,7 +75,10 @@ char ** parse(char *line) {
 
 	 */
   //  printf("count = %d", count);
-    newArgv[count] = '\0';
+    // temp = malloc(3);
+    // strcpy(temp, '\0');
+    newArgv[count] = NULL;
+    // printf("[%d]: %s", count,newArgv[count]);
   	return newArgv;
 }
 
@@ -94,7 +96,7 @@ void free_argv(char **oldArgv) {
    int i;
   //  printf("Free\n");
 
-   for(i = 0; oldArgv[i] != '\0'; i++){
+   for(i = 0; oldArgv[i] != NULL; i++){
       //  printf("Free %p, value = %s\n", oldArgv[i], oldArgv[i]);
        free(oldArgv[i]);
    }

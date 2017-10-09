@@ -23,14 +23,14 @@ static void bi_echo(char **argv) {
 		// printf("Enter Echo\n");
   	// /* Fill in code. */
 		// // -n not exist -> print all
-		// if (strcmp(argv[1], "-n") != 0){
-		// 	for(int i = 0; argv[i]; ++i){
-		// 		printf("%s ", argv[i]);
-		// 	}
-		// 	printf("\n");
-		// } else {
-		// 	printf("detect -n\n");
-		// }
+		if (strcmp(argv[1], "-n") != 0){
+			for(int i = 0; argv[i]; ++i){
+				printf("%s ", argv[i]);
+			}
+			printf("\n");
+		} else {
+			printf("detect -n\n");
+		}
 
 }
 
