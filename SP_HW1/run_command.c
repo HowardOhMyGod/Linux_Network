@@ -8,6 +8,7 @@
 #include <signal.h>
 #include <errno.h>
 #include <sys/wait.h>
+#include <unistd.h>
 #include "shell.h"
 
 void run_command(char **myArgv) {
@@ -17,6 +18,7 @@ void run_command(char **myArgv) {
     /* Create a new child process.
      * Fill in code.
 	 */
+    pid = fork();
 
     switch (pid) {
 
@@ -27,6 +29,7 @@ void run_command(char **myArgv) {
 
         /* Parent. */
         default :
+          wait(&pid);
             /* Wait for child to terminate.
              * Fill in code.
 			 */
@@ -39,11 +42,16 @@ void run_command(char **myArgv) {
 
         /* Child. */
         case 0 :
-            /* Run command in child process.
+          stat = execvp(myArgv[0], myArgv);
+
+          if(stat < 0) {
+            exit(errno);
+          }
+          /* Run command in child process.
              * Fill in code.
 			 */
 
             /* Handle error return from exec */
-			exit(errno);
+
     }
 }
