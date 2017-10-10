@@ -10,11 +10,12 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include "shell.h"
+#include <string.h>
 
 void run_command(char **myArgv) {
     pid_t pid;
     int stat;
-
+    char **inputArgv;
     /* Create a new child process.
      * Fill in code.
 	 */
@@ -29,7 +30,10 @@ void run_command(char **myArgv) {
 
         /* Parent. */
         default :
-          wait(&pid);
+          if(!is_background(myArgv)){
+            wait(&pid);
+          }
+
             /* Wait for child to terminate.
              * Fill in code.
 			 */
@@ -42,6 +46,14 @@ void run_command(char **myArgv) {
 
         /* Child. */
         case 0 :
+          if(is_background(myArgv)){
+            for(int i = 0; myArgv[i]; i++){
+              if(strcmp(myArgv[i], "&") == 0){
+                free(myArgv[i]);
+                myArgv[i] = NULL;
+              }
+            }
+          }
           stat = execvp(myArgv[0], myArgv);
 
           if(stat < 0) {
