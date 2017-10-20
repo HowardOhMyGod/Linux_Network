@@ -4,10 +4,13 @@
 
 #include <stdio.h>
 #include <sys/types.h>
+#include <stdlib.h>
 #include <signal.h>
 #include <errno.h>
+#include <unistd.h>
 #include <sys/wait.h>
 #include "shell.h"
+#include <string.h>
 
 void run_command(char **myArgv) {
   	pid_t pid;
@@ -51,7 +54,7 @@ void run_command(char **myArgv) {
 
       		/* Redirect output and update argv. */
 
-      		pipe_and_exec(myArgv);
+      		// pipe_and_exec(myArgv);
       		exit(errno);
 	}
 }

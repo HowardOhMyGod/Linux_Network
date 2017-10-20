@@ -13,6 +13,7 @@
 #include <pwd.h>
 #include <grp.h>
 #include <sys/utsname.h>
+#include <string.h>
 #include "shell.h"
 
 /****************************************************************************/
@@ -54,7 +55,16 @@ static struct cmd {
 
 
 static void bi_builtin(char ** argv) {
-	/* Fill in code. */
+	struct cmd *tableCommand;
+
+  for(tableCommand = inbuilts; tableCommand -> keyword; tableCommand++){
+    if(strcmp(tableCommand -> keyword, argv[1]) == 0){
+      printf("%s is a builtin feature.\n", argv[1]);
+      return;
+    }
+  }
+  printf("%s is NOT a builtin feature.\n", argv[1]);
+  return;
 }
 
 static void bi_cd(char **argv) {
@@ -63,6 +73,17 @@ static void bi_cd(char **argv) {
 
 static void bi_echo(char **argv) {
 	/* Fill in code. */
+  if (strcmp(argv[1], "-n") != 0){
+			for(int i = 1; argv[i]; ++i){
+				printf("%s ", argv[i]);
+			}
+			printf("\n");
+		} else {
+			// printf("detect -n\n");
+			int num = atoi(argv[2]);
+			printf("%s\n", argv[2 + num]);
+
+		}
 }
 
 static void bi_hostname(char ** argv) {

@@ -4,6 +4,8 @@
 
 #include <stdio.h>
 #include "shell.h"
+#include <string.h>
+#include <stdlib.h>
 
 int is_background(char ** myArgv) {
 
@@ -17,5 +19,11 @@ int is_background(char ** myArgv) {
 	 *
 	 * Fill in code.
 	 */
+   for(int i = 0; myArgv[i]; i++){
+     if(strcmp(myArgv[i], "&") == 0){
+       return 1;
+     }
+   }
+   return 0;
 
 }
