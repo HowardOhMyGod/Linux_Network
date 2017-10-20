@@ -44,7 +44,7 @@ char ** parse(char *line) {
 //  newArgv[count] = temp;
 //  printf("Token store in %p, value = %s\n", newArgv[count], newArgv[count]);
 
- printf("[%d] : %s \n",count, newArgv[count]);
+ // printf("[%d] : %s \n",count, newArgv[count]);
  count++;
  token = strtok(NULL, delim);
 
@@ -66,7 +66,7 @@ char ** parse(char *line) {
 
   //  newArgv[count] = temp;
   //  printf("Token store in %p, value = %s\n", newArgv[count], newArgv[count]);
-   printf("[%d] : %s \n",count, newArgv[count]);
+  //  printf("[%d] : %s \n",count, newArgv[count]);
    token = strtok(NULL, delim);
    count++;
  }

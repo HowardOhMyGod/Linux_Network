@@ -13,6 +13,7 @@
 #include <pwd.h>
 #include <grp.h>
 #include <sys/utsname.h>
+#include <sys/param.h>
 #include <string.h>
 #include "shell.h"
 
@@ -69,6 +70,9 @@ static void bi_builtin(char ** argv) {
 
 static void bi_cd(char **argv) {
 	/* Fill in code. */
+  if(chdir(argv[1]) == -1){
+    exit(1);
+  }
 }
 
 static void bi_echo(char **argv) {
@@ -88,14 +92,37 @@ static void bi_echo(char **argv) {
 
 static void bi_hostname(char ** argv) {
 	/* Fill in code. */
+  struct utsname uts;
+
+  if(uname(&uts) == -1){
+    perror("hostinfo.c:main:uname");
+    exit(1);
+  }
+
+  printf("hostname: %s\n", uts.nodename);
+  return;
 }
 
 static void bi_id(char ** argv) {
  	/* Fill in code. */
+  printf("UserID = %d, GroupID = %d\n", getuid(), geteuid());
+  return;
 }
 
 static void bi_pwd(char ** argv) {
 	/* Fill in code. */
+  char *dir;
+  long pathmaxlen = pathconf(".", _PC_PATH_MAX);
+
+  dir = getcwd((char *)NULL, pathmaxlen + 1);
+
+  if(dir == NULL){
+    perror("getcwd");
+    exit(1);
+  }
+
+  printf("%s\n", dir);
+  free(dir);
 }
 
 static void bi_quit(char **argv) {
