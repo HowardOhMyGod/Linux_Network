@@ -6,3 +6,6 @@ mydate: mydate.o
 
 print: printdir.o
 	gcc -o printdir printdir.c
+
+cat: mycat.o
+	gcc -o mycat mycat.c
