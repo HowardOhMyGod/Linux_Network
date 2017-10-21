@@ -15,6 +15,7 @@
 void run_command(char **myArgv) {
   	pid_t pid;
   	int stat;
+    int exe_stat;
   	int run_in_background;
 
   	/*
@@ -31,9 +32,28 @@ void run_command(char **myArgv) {
       		perror("fork");
       		exit(errno);
 
-    	/* Parent. */
+    	/* Child. */
+    	case 0 :
+      		/* Redirect input and update argv. */
+          redirect_in(myArgv);
+          // printf("after rI\n");
+      		// /* Redirect output and update argv. */
+          redirect_out(myArgv);
+
+      		// pipe_and_exec(myArgv);
+
+          exe_stat = execvp(myArgv[0], myArgv);
+
+          if(exe_stat < 0) {
+            exit(errno);
+          }
+
+          return;
+      /* Parent. */
     	default :
+          // wait(&pid);
       		if (!run_in_background) {
+
         		waitpid(pid,&stat,0);	/* Wait for child to terminate. */
 
         		if (WIFEXITED(stat) && WEXITSTATUS(stat)) {
@@ -46,15 +66,5 @@ void run_command(char **myArgv) {
         		}
       		}
       		return;
-
-    	/* Child. */
-    	case 0 :
-
-      		/* Redirect input and update argv. */
-
-      		/* Redirect output and update argv. */
-
-      		// pipe_and_exec(myArgv);
-      		exit(errno);
 	}
 }

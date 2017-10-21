@@ -33,5 +33,5 @@ int main(int argc, char* argv[]) {
 
     	fputs("myshell -> ",stdout);
 	}
-  	exit(0);
+  return 0;
 }
