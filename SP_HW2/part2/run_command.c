@@ -40,7 +40,7 @@ void run_command(char **myArgv) {
       		// /* Redirect output and update argv. */
           redirect_out(myArgv);
 
-      		// pipe_and_exec(myArgv);
+      		pipe_and_exec(myArgv);
 
           exe_stat = execvp(myArgv[0], myArgv);
 
@@ -51,7 +51,6 @@ void run_command(char **myArgv) {
           return;
       /* Parent. */
     	default :
-          // wait(&pid);
       		if (!run_in_background) {
 
         		waitpid(pid,&stat,0);	/* Wait for child to terminate. */

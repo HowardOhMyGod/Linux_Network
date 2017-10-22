@@ -1,4 +1,4 @@
-/* 
+/*
  * pipe_command.c  :  deal with pipes
  */
 
@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
+#include <string.h>
+#include <sys/wait.h>
 
 #include "shell.h"
 
@@ -15,8 +17,15 @@
 void pipe_and_exec(char **myArgv) {
   	int pipe_argv_index = pipe_present(myArgv);
   	int pipefds[2];
-	char **left_argv;
-	char **right_argv;
+	  char **left_argv;
+	  char **right_argv;
+
+    int left_count = 1;
+    int right_count = 1;
+
+    int i, j;
+
+    // printf("Pipe at %d\n", pipe_argv_index);
 
   	switch (pipe_argv_index) {
 
@@ -36,41 +45,82 @@ void pipe_and_exec(char **myArgv) {
 			 *
        		 * Fill in code. */
 
-      		/* Create a pipe to bridge the left and right halves of the vector. 
+          left_argv = malloc(sizeof(char * ) * (left_count + 1));
+          right_argv = malloc(sizeof(char * ) * (right_count + 1));
+
+          //  left argvs
+          for(j = 0; j != pipe_argv_index; ++j){
+            if (left_count != 1){
+              left_argv = realloc(left_argv, (left_count + 1)*sizeof(char *));
+            }
+
+            left_argv[j] = malloc((strlen(myArgv[j]) + 1)*sizeof(char));
+            strcpy(left_argv[j], myArgv[j]);
+            // printf("left : %s\n", left_argv[j]);
+            left_count++;
+          }
+          left_argv[j] = NULL;
+
+          //  right argvs
+          for(i = pipe_argv_index + 1, j = 0; myArgv[i]; ++i, ++j){
+            if (right_count != 1){
+              right_argv = realloc(right_argv, (right_count + 1)*sizeof(char *));
+            }
+
+            right_argv[j] = malloc((strlen(myArgv[i]) + 1)*sizeof(char));
+            strcpy(right_argv[j], myArgv[i]);
+            // printf("right : %s\n", right_argv[j]);
+            right_count++;
+          }
+          right_argv[j] = NULL;
+
+
+
+      		/* Create a pipe to bridge the left and right halves of the vector.
 			 *
 			 * Fill in code. */
+          pipe(pipefds);
 
       		/* Create a new process for the right side of the pipe.
        		 * (The left side is the running "parent".)
        		 *
 			 * Fill in code to replace the underline. */
-      		switch(_______) {
+          pid_t pid;
+
+
+      		switch(pid = fork()) {
 
         		case -1 :
 	  				break;
 
-        		/* Talking parent.  Remember this is a child forked from shell. */
+        		/* Listening parent.  Remember this is a child forked from shell. */
         		default :
+                // wait for child to wirte command result to pipe
+                wait(&pid);
 
-	  				/* - Redirect output of "parent" through the pipe.
-	  				 * - Don't need read side of pipe open.  Write side dup'ed to stdout.
-	 	 			 * - Exec the left command.
-					 *
-					 * Fill in code. */
-	  				break;
+                close(pipefds[1]);
+                close(0);
 
-        		/* Listening child. */
-        		case 0 :
+                dup2(pipefds[0], 0);
+                execvp(right_argv[0], right_argv);
 
-	  				/* - Redirect input of "child" through pipe.
-					  * - Don't need write side of pipe. Read side dup'ed to stdin.
-				  	 * - Exec command on right side of pipe and recursively deal with other pipes
-					 *
-					 * Fill in code. */
-					 
           			pipe_and_exec(&myArgv[pipe_argv_index+1]);
+
+    	  				break;
+
+        		/* Writing child. */
+        		case 0 :
+                // write result to pipe
+                close(pipefds[0]);
+                close(1);
+
+                dup2(pipefds[1], 1);
+                execvp(left_argv[0], left_argv);
+
+                exit(1);
+                break;
 			}
 	}
-	perror("Couldn't fork or exec child process");
-  	exit(errno);
+	// perror("Couldn't fork or exec child process");
+  // 	exit(errno);
 }
