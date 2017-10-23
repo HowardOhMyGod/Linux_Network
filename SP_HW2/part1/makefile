@@ -9,3 +9,6 @@ print: printdir.o
 
 cat: mycat.o
 	gcc -o mycat mycat.c
+
+pipe: pipe_ls.o
+	gcc -o pipe_ls pipe_ls.c
