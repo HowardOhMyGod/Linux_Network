@@ -4,28 +4,34 @@
  *	         as resource.
  */
 #include <string.h>
+#include <ctype.h>
+
 #include "dict.h"
 
 int lookup(Dictrec * sought, const char * resource) {
 	Dictrec dr;
 	static FILE * in;
 	static int first_time = 1;
-
-	if (first_time) { 
-		first_time = 0;
 		/* open up the file
 		 *
 		 * Fill in code. */
-	}
+	 in = fopen(resource, "r");
+	 strcat(sought -> word, "\n");
 
 	/* read from top of file, looking for match
 	 *
 	 * Fill in code. */
-	rewind(in);
-	while(________) {
-		/* Fill in code. */
-		return FOUND;
+
+	while(!feof(in)){
+		fread(&dr, sizeof(Dictrec), 1, in);
+
+		if(strcmp(dr.word, sought->word) == 0){
+			strcpy(sought -> text, dr.text);
+
+			return FOUND;
+		}
 	}
+	fclose(in);
 
 	return NOTFOUND;
 }

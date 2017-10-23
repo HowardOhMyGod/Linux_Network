@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
 	/* If args are supplied, argv[1] is for input, argv[2] for output */
 	if (argc==3) {
 		if ((in =fopen(argv[1],"r")) == NULL){DIE(argv[1]);}
-		if ((out =fopen(argv[2],"w")) == NULL){DIE(argv[2]);}
+		if ((out =fopen(argv[2],"wb+")) == NULL){DIE(argv[2]);}
 	}
 	else{
 		printf("Usage: convert [input file] [output file].\n");
@@ -57,51 +57,15 @@ int main(int argc, char **argv) {
         //  printf("word: %s", blank.word);
         //  printf("Defi: %s", blank.text);
         //  printf("---------\n");
-
          memset(defi, 0, BIGLINE);
-
-         for(int i = 0; i < WORD; ++i){
-           if(i == WORD - 1){
-             strcat(blank.word, "\0");
-           } else if(!blank.word[i]){
-             strcat(blank.word, " ");
-           }
-         }
-
-         for(int i = 0; i < TEXT; ++i){
-           if(i == TEXT - 1){
-             strcat(blank.text, "\0");
-           } else if(!blank.text[i]){
-             strcat(blank.text, " ");
-           }
-         }
-
-        //  printf("Word Length: %ld\n", strlen(blank.word));
-        //  printf("Defi Length: %ld\n", strlen(blank.text));
-
-         fprintf(out, "%s\n%s\n", blank.word, blank.text);
+				 fwrite(&blank, sizeof(Dictrec), 1, out);
 
      }
 	}
   // last word and line
   strcpy(blank.text, line);
-
-  for(int i = 0; i < WORD; i++){
-    if(i == WORD - 1){
-      strcat(blank.word, "\0");
-    } else if(!blank.word[i]){
-      strcat(blank.word, " ");
-    }
-  }
-
-  for(int i = 0; i < TEXT; ++i){
-    if(i == TEXT - 1){
-      strcat(blank.text, "\0");
-    } else if(!blank.text[i]){
-      strcat(blank.text, " ");
-    }
-  }
-  fprintf(out, "%s\n%s\n", blank.word, blank.text);
+  // fprintf(out, "%s\n%s\n", blank.word, blank.text);
+	fwrite(&blank, sizeof(Dictrec), 1, out);
 
 	fclose(in);
 	fclose(out);
