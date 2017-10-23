@@ -54,9 +54,9 @@ int main(int argc, char **argv) {
        strcat(defi, line);
      } else { //blank line indicate word end
          strcpy(blank.text, defi);
-         printf("word: %s", blank.word);
-         printf("Defi: %s", blank.text);
-         printf("---------\n");
+        //  printf("word: %s", blank.word);
+        //  printf("Defi: %s", blank.text);
+        //  printf("---------\n");
 
          memset(defi, 0, BIGLINE);
 
@@ -76,8 +76,8 @@ int main(int argc, char **argv) {
            }
          }
 
-         printf("Word Length: %ld\n", strlen(blank.word));
-         printf("Defi Length: %ld\n", strlen(blank.text));
+        //  printf("Word Length: %ld\n", strlen(blank.word));
+        //  printf("Defi Length: %ld\n", strlen(blank.text));
 
          fprintf(out, "%s\n%s\n", blank.word, blank.text);
 
