@@ -6,72 +6,86 @@
 #include <string.h>
 #include <sys/stat.h>
 
-void list_directory( char *dir_path, char *options);
-int isDirExist(char *dirname);
-int isDash(char *argvs);
-int isOption(char *argv, char option);
+
+void list_directory( char *dir_path, int f_flag, int r_flag);
+void listAll(char *dir_path, int f_flag);
 
 int main( int argc, char **argv) {
+	int c, f_flag = 0, r_flag = 0;
+	int index;
+	int nonOptCount = 0;
+
 	if(argc > 2){
 		printf("Usage: ./myls [-options]\n");
 		exit(1);
 
 	// input ./myls
 	} else if (argc == 1){
-			list_directory(NULL, NULL);
+			list_directory(NULL, 0, 0);
 	// input ./myls [options]
 	} else {
+		//get otions
+		while((c = getopt(argc, argv, "RF")) != -1){
+			switch(c){
 
-		if(isDash(argv[1])){ // input options
-			printf("Find dash.\n");
-			list_directory(NULL, argv[1]);
+				case 'F':
+					f_flag = 1;
+					break;
 
-		} else if (isDirExist(argv[1])){ // specified directory
-			printf("Find Dir.\n");
-			list_directory(argv[1], NULL);
-
-		} else {
-			printf("Can't find directory or commands : %s\n", argv[1]);
-			exit(1);
+				case 'R':
+					r_flag = 1;
+					break;
+				default:
+					break;
+			}
 		}
-	}
 
+		// printf("f_flag = %d, r_flag = %d\n", f_flag, r_flag);
+
+		for(index = optind; index < argc; index++){
+			nonOptCount ++;
+		}
+
+		// specified directory
+		if(r_flag == 0 && f_flag == 0 && nonOptCount == 1){
+			list_directory(argv[1], 0, 0);
+
+		// current directory with options
+	} else if (r_flag != 0) {
+			listAll(".", f_flag);
+		} else {
+			list_directory(NULL, f_flag, r_flag);
+		}
+
+	}
 	return 0;
 }
 
-int isDash(char *argv){
-	if(argv[0] == '-') return 1;
-	else return 0;
-}
-
-int isOption(char *argv, char option){
-		if(argv == NULL) return 0;
-
-		for(int i = 0; argv[i]; i++){
-			if(argv[i] == option) return 1;
-		}
-
-		return 0;
-}
-
-int isDirExist(char *dirname){
-	if(chdir(dirname) == 0) return 1;
-	else return 0;
-}
-
-void list_directory( char *dir_path, char *options) {
+void list_directory( char *dir_path, int f_flag, int r_flag){
+	char path[100];
 	DIR *dirp;
 	struct dirent *dent;
 	struct stat buf;
-	char path[1024];
 
-
-	// get current directory path
-	if(getcwd(path, sizeof(path)) != NULL){
-		printf("%s:\n", path);
+	if(dir_path == NULL){
+		if(getcwd(path, sizeof(path)) == NULL){
+			perror("getcwd()");
+			exit(1);
+		}
 	} else {
-		perror("getcwd()");
+		if(chdir(dir_path) == -1){
+			perror("getcwd()");
+			exit(1);
+		}
+
+		if(getcwd(path, sizeof(path)) == NULL){
+			perror("getcwd()");
+			exit(1);
+		}
+
 	}
+
+	printf("%s:\n", path);
 
 	//open dir
 	if((dirp = opendir(path)) == NULL){
@@ -79,34 +93,69 @@ void list_directory( char *dir_path, char *options) {
 		exit(1);
 	}
 
-	// print dir contents
-
 	while(dent = readdir(dirp)){
-
-		// exclude .. and .
-		if(strcmp(dent -> d_name, ".") != 0 && strcmp(dent -> d_name, "..") != 0){
-
-			// if F option print file type
-			if(isOption(options, 'F') == 1){
+		//exclude . and ..
+		if(strcmp(dent -> d_name, ".") != 0 && strcmp(dent -> d_name, "..")){
+			if(f_flag == 1){
 				stat(dent -> d_name, &buf);
 
-				if(S_ISDIR(buf.st_mode)){
-					printf("%s/\n", dent -> d_name);
-
-				} else if (buf.st_mode & S_IXUSR){
-					printf("%s*\n", dent -> d_name);
-				} else {
-					printf("%s\n", dent -> d_name);
-				}
-
-			// normal print
+				if(S_ISDIR(buf.st_mode)) printf("%s/\n", dent -> d_name);
+				else if (buf.st_mode & S_IXUSR) printf("%s*\n", dent -> d_name);
+				else printf("%s\n", dent -> d_name);
 			} else {
 				printf("%s\n", dent -> d_name);
 			}
 		}
 	}
 
-	// close dir
 	(void)closedir(dirp);
 
+}
+
+void listAll(char *dir_path, int f_flag){
+	char path[100];
+	DIR *dirp;
+	struct dirent *dent;
+	struct stat buf;
+	char *subdir;
+
+	if((dirp = opendir(dir_path)) == NULL){
+		// perror("opendir()");
+		return;
+	}
+
+	chdir(dir_path);
+
+	if(getcwd(path, sizeof(path)) == NULL){
+		perror("getcwd()");
+		exit(1);
+	}
+
+	printf("\n%s : \n", path);
+
+	while((dent = readdir(dirp))){
+
+		stat(dent -> d_name, &buf);
+
+		if(S_ISDIR(buf.st_mode)){
+			if(strcmp(dent -> d_name, ".") == 0 || strcmp(dent -> d_name, "..") == 0) continue;
+
+
+			subdir = malloc(strlen(path) + strlen(dent -> d_name) + 2);
+
+			strcpy(subdir, path);
+			strcat(subdir, "/");
+			strcat(subdir, dent -> d_name);
+
+			if(f_flag) printf("%s/\n", dent -> d_name);
+			else printf("%s\n", dent -> d_name);
+
+			listAll(subdir, f_flag);
+		} else {
+			if(f_flag && buf.st_mode & S_IXUSR) printf("%s*\n", dent -> d_name);
+			else printf("%s\n", dent -> d_name);
+		}
+	}
+
+	(void)closedir(dirp);
 }
