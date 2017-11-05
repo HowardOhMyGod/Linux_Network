@@ -27,9 +27,10 @@ int lookup(Dictrec * sought, const char * resource) {
 	Dictrec dr;
 	static int numrec;
 	int i;
-	Index * found,tmp;
+	Index * found, tmp;
 	static FILE * in;
 	static int first_time = 1;
+  long fileSize;
 
 	if (first_time) { /* set up index */
 		first_time = 0;
@@ -37,24 +38,45 @@ int lookup(Dictrec * sought, const char * resource) {
 		/* Open file.
 		 *
 		 * Fill in code. */
-
+     in = fopen(resource, "r");
+     if(!in){
+       perror("fopen()");
+       exit(1);
+     }
 		/* Get number records in file by dividing ending file offset by recsize.
 		 *
 		 * Fill in code. */
-
+     fseek(in, 0, SEEK_END);
+     fileSize = ftell(in);
+     numrec = fileSize / sizeof(Dictrec);
 		/* Go to the beginning of the file.
 		 *
 		 * Fill in code. */
+     fseek(in, 0, SEEK_SET);
 
 		/* Allocate zeroed-out memory: numrec elements of struct Index. */
-		table = calloc(sizeof(Index),numrec);
+		 table = calloc(numrec, sizeof(Index));
 
 		/* Read the file into the just-allocated array in memory.
 		 *
 		 * Fill in code. */
+    int j = 0;
+    while(!feof(in)){
+		    fread(&dr, sizeof(Dictrec), 1, in);
+        strcpy(tmp.word, dr.word);
+        tmp.off = ftell(in) - sizeof(Dictrec);
+
+        table[j] = tmp;
+        j++;
+	  }
+
+    // for(i = 0; i < numrec; i++){
+    //   printf("word: %s\n", table[i].word);
+    //   printf("off: %ld\n", table[i].off);
+    // }
 
 		/* Sort the table of entry/offset Index structures. */
-		qsort(table,numrec,sizeof(Index),dict_cmp);
+		 qsort(table,numrec,sizeof(Index),dict_cmp);
 
 	} /* end of first-time initialization */
 
@@ -65,7 +87,10 @@ int lookup(Dictrec * sought, const char * resource) {
 	/* If found, go to that place in the file, and read the record into the
 	 * caller-supplied space. */
 	if (found) {
-		/* Fill in code. */
+    fseek(in, (found -> off), SEEK_SET);
+    fread(&dr, sizeof(Dictrec), 1, in);
+    strcpy(sought -> text, dr.text);
+
 		return FOUND;
 	}
 	return NOTFOUND;
