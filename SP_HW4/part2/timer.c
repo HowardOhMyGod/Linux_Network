@@ -14,6 +14,7 @@ static clock_t start_time;
 void set_timer(void) {
 	struct tms tmbuf;
 	/* Fill in code. */
+	start_time = times(&tmbuf);
 }
 
 
@@ -28,5 +29,6 @@ void stop_timer(void) {
 	/* Get delta times and print them out.
 	 *
 	 * Fill in code. */
+	 end_time = times(&tmbuf);
+	 printf("Sys: %.2f\t\tUser: %.2f\tReal: %.2f\n", (float)(tmbuf.tms_cstime)/ticks, (float)(tmbuf.tms_cutime)/ticks,(float)(end_time - start_time)/ticks);
 }
-
