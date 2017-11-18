@@ -10,6 +10,8 @@
 #include <sys/msg.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include "dict.h"
 
 int lookup(Dictrec * sought, const char * resource) {
@@ -18,8 +20,9 @@ int lookup(Dictrec * sought, const char * resource) {
 	static int qid;
 	static int pid;
 	static int first_time = 1;
+	key_t key;
 
-	if (first_time) { /* open message queue */
+	if (first_time) {  /* open message queue */
 		first_time = 0;
 
 		/* Prepare our ClientMessage structure. */
@@ -30,11 +33,22 @@ int lookup(Dictrec * sought, const char * resource) {
 		/* Open the message queue.  Use resource pointer value as key.
 		 *
 		 * Fill in code. */
+		 key = strtol(resource, NULL, 16);
+		 qid = msgget(key, IPC_CREAT | 0660);
+
+		//  printf("qid: %d\n", qid);
+
 	}
 
 	/* Send server the word to be found ; await reply
 	 *
 	 * Fill in code. */
+	strcpy(snd.content.word, sought -> word);
+	msgsnd(qid, &snd, sizeof(Client), 0);
+
+	// printf("Client Send!\n");
+
+	msgrcv(qid, &rcv, TEXT, pid, 0);
 
 	strcpy(sought->text,rcv.text);
 

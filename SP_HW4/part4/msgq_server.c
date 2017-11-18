@@ -24,6 +24,7 @@ int main(int argc, char **argv) {
 	static ClientMessage rcv;
 	ServerMessage snd;
 	struct stat stbuff;
+	key_t key;
 
 	if (argc != 3) {
 		fprintf(stderr,"Usage : %s <dictionary source>"
@@ -39,29 +40,54 @@ int main(int argc, char **argv) {
 	/* Get the message queue, key is based on commandline second argument.
 	 *
 	 * Fill in code. */
+	 // get command line argv, string to hex
+	 key = strtol(argv[2], NULL, 16);
 
-	for (;;) { /* await client messages ; reply immediately */
+	 qid = msgget(key, IPC_CREAT | 0660);
+
+	 if(qid < 0){
+		 perror("msgget");
+		 exit(1);
+	 }
+
+	//  printf("Server %d listen for request...\n", qid);
+
+	 for (;;) { /* await client messages ; reply immediately */
 
 		/* Wait for / receive a message.
 		 *
 		 * Fill in code. */
+	 if(msgrcv(qid, &rcv, sizeof(Client), 1, 0) < 0){
+		 perror("msgrcv");
+		 exit(1);
+	 }
+
+	  // printf("Receice word: %s\n", rcv.content.word);
+
 
 		strcpy(tryit.word,rcv.content.word);/* Get the word to lookup. */
-
+		// printf("tyrit.wod: %s\n", tryit.word);
 		snd.type = atol(rcv.content.id);	/* Get sender to set msg type.*/
 
 		switch(lookup(&tryit,argv[1])) {	/* Lookup word in db. */
-			case FOUND: 
+			case FOUND:
 				strcpy(snd.text,tryit.text);	/* Found.  Put result in return msg. */
+				// printf("%s\n", tryit.text);
 				break;
 			case NOTFOUND : 				/* Not found.  Return XXXX. */
 				strcpy(snd.text,"XXXX");
+				// printf("Not found!\n");
 				break;
-			case UNAVAIL  : DIE(argv[1]);	/* Other problem. */
+			case UNAVAIL:
+				DIE(argv[1]);	/* Other problem. */
+				break;
 		}
 
 		/* Send response.
 		 *
 		 * Fill in code. */
+		msgsnd(qid, &snd, sizeof(Client), 0);
+
+		// 	printf("Server Send!\n");
 	}
 }
