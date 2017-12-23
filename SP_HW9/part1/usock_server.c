@@ -10,11 +10,13 @@
 #include <sys/un.h>
 #include <errno.h>
 #include "dict.h"
+#include <string.h>
 
 int main(int argc, char **argv) {
-    struct sockaddr_un server;
+    struct sockaddr_un server, client;
     int sd,cd,n;
     Dictrec tryit;
+    int rval;
 
     if (argc != 3) {
       fprintf(stderr,"Usage : %s <dictionary source>"
@@ -24,40 +26,69 @@ int main(int argc, char **argv) {
 
     /* Setup socket.
      * Fill in code. */
-    
+    sd = socket(AF_UNIX, SOCK_STREAM, 0);
+
     /* Initialize address.
      * Fill in code. */
+    server.sun_family = AF_UNIX;
+    strcpy(server.sun_path, argv[2]);
+    unlink(server.sun_path);
 
     /* Name and activate the socket.
      * Fill in code. */
+    if(bind(sd, (struct sockaddr *) &server, sizeof(server)) == -1){
+      perror("bind");
+      exit(errno);
+    }
+
+    if(listen(sd, 5 * sizeof(Dictrec)) == -1){
+      perror("listen");
+      exit(errno);
+    }
 
     /* main loop : accept connection; fork a child to have dialogue */
     for (;;) {
 		/* Wait for a connection.
 		 * Fill in code. */
+    n = sizeof(client);
+    cd = accept(sd, (struct sockaddr *)&client, &n);
 
 		/* Handle new client in a subprocess. */
 		switch (fork()) {
-			case -1 : 
+			case -1 :
 				DIE("fork");
 			case 0 :
 				close (sd);	/* Rendezvous socket is for parent only. */
 				/* Get next request.
 				 * Fill in code. */
-				while (___________)) {
+        rval = recv(cd, &tryit, sizeof(Dictrec), 0);
+
+				while (rval > 0 || rval >= sizeof(Dictrec)) {
 
 					/* Lookup request. */
 					switch(lookup(&tryit,argv[1]) ) {
 						/* Write response back to client. */
-						case FOUND: 
+						case FOUND:
 							/* Fill in code. */
+              printf("%s\n", tryit.text);
+              rval = send(cd, &tryit, sizeof(Dictrec), 0);
+              if (rval < 0){
+                perror("send");
+              }
 							break;
-						case NOTFOUND: 
+						case NOTFOUND:
 							/* Fill in code. */
+              strcpy(tryit.text, "XXXX");
+              rval = send(cd, &tryit, sizeof(Dictrec), 0);
+              if (rval < 0){
+                perror("send");
+              }
 							break;
 						case UNAVAIL:
 							DIE(argv[1]);
 					} /* end lookup switch */
+
+          rval = recv(cd, &tryit, sizeof(Dictrec), 0);
 
 				} /* end of client dialog */
 
