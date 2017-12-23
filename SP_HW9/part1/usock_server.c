@@ -70,7 +70,6 @@ int main(int argc, char **argv) {
 						/* Write response back to client. */
 						case FOUND:
 							/* Fill in code. */
-              printf("%s\n", tryit.text);
               rval = send(cd, &tryit, sizeof(Dictrec), 0);
               if (rval < 0){
                 perror("send");
@@ -87,7 +86,8 @@ int main(int argc, char **argv) {
 						case UNAVAIL:
 							DIE(argv[1]);
 					} /* end lookup switch */
-
+          
+          /* get new request*/
           rval = recv(cd, &tryit, sizeof(Dictrec), 0);
 
 				} /* end of client dialog */
